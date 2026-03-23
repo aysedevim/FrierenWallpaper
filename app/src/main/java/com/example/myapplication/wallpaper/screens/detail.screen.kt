@@ -1,8 +1,7 @@
 package com.example.myapplication.wallpaper.screens
-
+import android.app.WallpaperManager
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -62,14 +62,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.myapplication.R
+import com.example.myapplication.wallpaper.data.repository.WallpaperSetterImpl
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.ui.theme.LightBlue
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
+import com.example.myapplication.wallpaper.ui.theme.gradientColors
 import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 import kotlinx.coroutines.launch
 
-val gradientColorsDetail = listOf(Purple, LightBlue)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +85,7 @@ fun DetailScreen(
     val favoriteIds by viewModel.favoriteIds.collectAsState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val wallpaperSetter = remember { WallpaperSetterImpl() }
 
     val isFavorited = favoriteIds.contains(wallpaperId)
 
@@ -137,21 +141,34 @@ fun DetailScreen(
             containerColor = Primary,
         ) {
             SetWallpaperBottomSheet(
-                onOptionSelected = { option ->
+                onOptionSelected = { selectedOption ->
                     coroutineScope.launch {
                         sheetState.hide()
                         showBottomSheet = false
 
-                        viewModel.setWallpaperWithOptions(
-                            context = context,
-                            wallpaper = wallpaper!!,
-                            option = option
-                        ) { success, message ->
-                            Toast.makeText(
-                                context,
-                                message,
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        val destination = when (selectedOption) {
+                            "home" -> WallpaperManager.FLAG_SYSTEM
+                            "lock" -> WallpaperManager.FLAG_LOCK
+                            "both" -> WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK
+                            else -> WallpaperManager.FLAG_SYSTEM
+                        }
+
+                        wallpaper?.let { currentWallpaper ->
+                            val result = wallpaperSetter.setWallpaper(
+                                context = context,
+                                wallpaper = currentWallpaper,
+                                destination = destination
+                            )
+
+                            result.onSuccess {
+                                Toast.makeText(context, "Wallpaper set successfully!", Toast.LENGTH_SHORT).show()
+                            }.onFailure { error ->
+                                Toast.makeText(
+                                    context,
+                                    "Failed to set wallpaper: ${error.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 }
@@ -183,24 +200,24 @@ fun SetWallpaperBottomSheet(
 
         WallpaperOptionButton(
             onClick = { onOptionSelected("home") },
-            title = "Home Screen",
-            description = "Set as your home screen wallpaper"
+            title =  stringResource(R.string.home_screen),
+            description =  stringResource(R.string.set_as_home),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         WallpaperOptionButton(
             onClick = { onOptionSelected("lock") },
-            title = "Lock Screen",
-            description = "Set as your lock screen wallpaper"
+            title =  stringResource(R.string.lock_screen),
+            description =  stringResource(R.string.set_as_lock),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         WallpaperOptionButton(
             onClick = { onOptionSelected("both") },
-            title = "Both Screens",
-            description = "Set as both home and lock screen"
+            title = stringResource(R.string.both_screens),
+            description =  stringResource(R.string.set_as_both),
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -210,7 +227,7 @@ fun SetWallpaperBottomSheet(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Cancel",
+                stringResource(R.string.cancel),
                 color = Color.Gray,
                 fontSize = 16.sp
             )
@@ -355,7 +372,7 @@ fun BottomCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Title("Related Wallpapers")
+            Title(stringResource(R.string.related_wallpapers))
             SeeAllButton(onClick = {})
         }
     }
@@ -418,7 +435,7 @@ fun GradientButton(
             .clip(RoundedCornerShape(50))
             .background(
                 brush = Brush.horizontalGradient(
-                    colors = gradientColorsDetail
+                    colors = gradientColors
                 )
             )
     ) {
@@ -432,11 +449,11 @@ fun GradientButton(
         ) {
             Icon(
                 Icons.Default.Wallpaper,
-                contentDescription = "Set as Wallpaper",
+                contentDescription = stringResource(R.string.set_as_wallpaper),
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
             Text(
-                "Set as Wallpaper",
+                stringResource(R.string.set_as_wallpaper),
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -462,7 +479,7 @@ fun ViewDetailsButton(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "View Details",
+                stringResource(R.string.view_details),
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -487,7 +504,7 @@ fun SeeAllButton(onClick: () -> Unit) {
         onClick = { onClick() }
     ) {
         Text(
-            "See all",
+            (stringResource(R.string.see_all)),
             style = TextStyle(
                 color = Purple,
                 fontSize = 18.sp,
@@ -536,7 +553,7 @@ fun Dividers(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Views",
+                    stringResource(R.string.views),
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -567,7 +584,7 @@ fun Dividers(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Favorites",
+                    stringResource(R.string.favorites_count),
                     color = Color.Gray,
                     fontSize = 12.sp
                 )

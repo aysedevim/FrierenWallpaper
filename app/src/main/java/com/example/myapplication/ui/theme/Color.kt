@@ -15,3 +15,5 @@ val LightBlue = Color(0xFF03A9F4)
 val Purple = Color(0xFF9C27B0)
 
 val Primary = Color(0xFF190F22)
+
+val gradientColors = listOf(Purple, LightBlue)

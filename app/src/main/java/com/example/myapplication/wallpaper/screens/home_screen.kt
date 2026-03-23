@@ -2,13 +2,13 @@
 
 package com.example.myapplication.wallpaper.screens
 
+import com.example.myapplication.R
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -18,46 +18,48 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.ui.theme.LightBlue
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
+import com.example.myapplication.wallpaper.ui.theme.gradientColors
 import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 
 
-val gradientColors = listOf(Purple, LightBlue)
-
 @Composable
-fun HomeScreen( navController: NavController, viewModel: WallpaperViewModel) {
-    val bannerImage by remember { viewModel.bannerImage }
+fun HomeScreen(navController: NavController,
+               viewModel: WallpaperViewModel = viewModel(),
+
+) {
+    val bannerImage by viewModel.bannerImage
     val mostViewedWallpapers = viewModel.mostViewedWallpapers.collectAsLazyPagingItems()
     val mostFavoritedWallpapers = viewModel.mostFavoritedWallpapers.collectAsLazyPagingItems()
 
-
     LaunchedEffect(Unit) {
         viewModel.loadBanner()
+        viewModel.getMostViewed()
+        viewModel.getMostFavorited()
     }
+
 
     Column(
         modifier = Modifier
@@ -71,7 +73,7 @@ fun HomeScreen( navController: NavController, viewModel: WallpaperViewModel) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ABox()
             Spacer(Modifier.size(8.dp))
-            GradientText("AnimeWalls")
+            GradientText(stringResource(id = R.string.anime_walls))
         }
 
         BannerCard(
@@ -87,15 +89,15 @@ fun HomeScreen( navController: NavController, viewModel: WallpaperViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Most Viewed")
-            TextButtonExample(
+            TitleText(stringResource(id = R.string.most_viewed))
+            ButtonText(
                 onClick = {
                     navController.navigate("browse")
                 }
             )
         }
 
-        CarouselExample(
+        WallpaperCarousel(
             pagingItems = mostViewedWallpapers,
             navController = navController,
         )
@@ -104,15 +106,15 @@ fun HomeScreen( navController: NavController, viewModel: WallpaperViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Most Favorited")
-            TextButtonExample(
+            TitleText(stringResource(id = R.string.most_favorited))
+            ButtonText(
                 onClick = {
                     navController.navigate("browse")
                 }
             )
 
         }
-        CarouselExample(
+        WallpaperCarousel(
             pagingItems = mostFavoritedWallpapers,
             navController=navController
         )
@@ -187,7 +189,7 @@ fun BannerCard(
 }
 
 @Composable
-fun Text(text: String) {
+fun TitleText(text: String) {
 
     Text(
         text = text,
@@ -201,7 +203,7 @@ fun Text(text: String) {
 }
 
 @Composable
-fun TextButtonExample(
+fun ButtonText(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -210,7 +212,7 @@ fun TextButtonExample(
         modifier = modifier
     ) {
         Text(
-            "See all >",
+            (stringResource(R.string.see_all)),
             style = TextStyle(
                 color = Purple,
                 fontSize = 18.sp,
@@ -222,7 +224,7 @@ fun TextButtonExample(
 
 
 @Composable
-fun CarouselExample(
+fun WallpaperCarousel(
     pagingItems: LazyPagingItems<Wallpaper>,
     navController: NavController,
 ) {

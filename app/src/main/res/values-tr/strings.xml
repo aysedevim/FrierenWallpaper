@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Frieren Wallpaper</string>
+    <string name="anime_walls">AnimeWalls</string>
+    <string name="most_viewed">En Çok Görüntülenen</string>
+    <string name="most_favorited">En Çok Favorilenen</string>
+    <string name="see_all">Tümünü Göster</string>
+
+    <string name="home">Ana Sayfa</string>
+    <string name="browse">Gözat</string>
+    <string name="favorites">Favoriler</string>
+
+    <string name="sort_by">Sırala:</string>
+    <string name="popular">Popüler</string>
+    <string name="newest">En Yeni</string>
+    <string name="most_liked">En Beğenilen</string>
+    <string name="trending">Trend</string>
+
+    <string name="new_releases">Yeni Çıkanlar</string>
+    <string name="quality_4k">4K Kalite</string>
+    <string name="shonen">Shonen</string>
+    <string name="minimalist">Minimalist</string>
+    <string name="cyberpunk">Cyberpunk</string>
+
+
+    <string name="no_favorites_yet">Henüz favori yok.</string>
+    <string name="set_as_wallpaper">Duvar Kağıdı Yap</string>
+    <string name="home_screen">Ana Ekran</string>
+    <string name="set_as_home">Ana ekran duvar kağıdı olarak ayarla</string>
+    <string name="lock_screen">Kilit Ekranı</string>
+    <string name="set_as_lock">Kilit ekranı duvar kağıdı olarak ayarla</string>
+    <string name="both_screens">Her İkisi</string>
+    <string name="set_as_both">Hem ana hem kilit ekranı olarak ayarla</string>
+    <string name="cancel">İptal</string>
+    <string name="view_details">Detayları Gör</string>
+    <string name="views">Görüntülenme</string>
+    <string name="favorites_count">Favori</string>
+    <string name="related_wallpapers">Benzer Duvar Kağıtları</string>
+</resources>

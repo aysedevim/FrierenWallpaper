@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -44,9 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -54,24 +55,26 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
+import com.example.myapplication.R
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
+import com.example.myapplication.wallpaper.ui.theme.gradientColors
 import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 
 
 @Composable
 fun BrowseScreen(
     navController: NavController,
-    viewModel: WallpaperViewModel
+    viewModel: WallpaperViewModel,
 ) {
     val wallpapersPagination = viewModel.wallpapersPagination.collectAsLazyPagingItems()
-
     val favoriteIds by viewModel.favoriteIds.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getWallpapers()
     }
+
 
     Column(
         modifier = Modifier
@@ -86,13 +89,8 @@ fun BrowseScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Result",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.LightGray
-            )
-            DropDownDemo()
+
+            DropDown()
         }
 
         PagingWallpaperGrid(
@@ -107,7 +105,7 @@ fun BrowseScreen(
 }
 
 @Composable
-fun DropDownDemo() {
+fun DropDown() {
     val isDropDownExpanded = remember {
         mutableStateOf(false)
     }
@@ -116,7 +114,10 @@ fun DropDownDemo() {
         mutableStateOf(0)
     }
 
-    val usernames = listOf("Popular", "Newest", "Most Liked")
+    val usernames = listOf(
+        stringResource(R.string.popular),
+        stringResource(R.string.newest),
+        stringResource(R.string.most_liked),)
 
     Box {
         Row(
@@ -127,7 +128,7 @@ fun DropDownDemo() {
             }
         ) {
             Text(
-                text = "Sort by: ",
+                stringResource(R.string.sort_by),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
                 color = Purple
@@ -305,19 +306,20 @@ fun WallpaperCard(
 @Composable
 fun CategoryChips() {
     val categories = listOf(
-        "Trending",
-        "New Releases",
-        "4K Quality",
-        "Shonen",
-        "Minimalist",
-        "Cyberpunk"
+        stringResource(R.string.trending),
+        stringResource(R.string.new_releases),
+        stringResource(R.string.quality_4k),
+        stringResource(R.string.shonen),
+        stringResource(R.string.minimalist),
+        stringResource(R.string.cyberpunk)
     )
+
 
     var selectedCategory by remember { mutableStateOf(categories[0]) }
 
     Column {
         Text(
-            text = "Browse",
+            stringResource(R.string.browse),
             style = MaterialTheme.typography.titleMedium.copy(
                 color= Color.White,
                 fontSize = 24.sp,
@@ -353,7 +355,7 @@ fun CategoryChips() {
                         .then(
                             if (selectedCategory == category) {
                                 Modifier.background(
-                                    brush = Brush.horizontalGradient(colors = gradientColorsDetail),
+                                    brush = Brush.horizontalGradient(colors = gradientColors),
                                     shape = RoundedCornerShape(20.dp)
                                 )
                             } else {

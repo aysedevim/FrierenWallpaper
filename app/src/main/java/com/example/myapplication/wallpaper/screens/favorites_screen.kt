@@ -20,7 +20,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -28,13 +27,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
+import com.example.myapplication.R
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
@@ -43,14 +45,13 @@ import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 @Composable
 fun FavoritesScreen(
     navController: NavController,
-    viewModel: WallpaperViewModel
+    viewModel: WallpaperViewModel = viewModel(),
+
 ) {
     val favoriteIds by viewModel.favoriteIds.collectAsState()
     val allWallpapers = viewModel.wallpapersPagination.collectAsLazyPagingItems()
 
-    LaunchedEffect(Unit) {
-        viewModel.getWallpapers()
-    }
+    val favoritedList = FavoriteList(allWallpapers, favoriteIds)
 
     Column(
         modifier = Modifier
@@ -61,7 +62,7 @@ fun FavoritesScreen(
     ) {
 
         Text(
-            text = "Favorites",
+            text = stringResource(R.string.favorites),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
@@ -91,7 +92,7 @@ fun FavoritesScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No favorites yet.",
+                            text = stringResource(R.string.no_favorites_yet),
                             color = Color.Gray,
                             fontSize = 18.sp
                         )

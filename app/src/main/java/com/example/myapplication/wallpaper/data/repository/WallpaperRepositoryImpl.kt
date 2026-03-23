@@ -1,6 +1,5 @@
 package com.example.myapplication.wallpaper.data.repository
 
-import android.content.Context
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.repository.WallpaperRepository
 import com.example.myapplication.wallpaper.data.remote.WallpaperApi

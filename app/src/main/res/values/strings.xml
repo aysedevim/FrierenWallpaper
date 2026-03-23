@@ -1,3 +1,39 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Frieren Wallpaper</string>
+    <string name="anime_walls">AnimeWalls</string>
+    <string name="most_viewed" translatable="false">Most Viewed</string>
+    <string name="most_favorited" translatable="false">Most Favorited</string>
+    <string name="see_all">See All</string>
+
+    <string name="home">Home</string>
+    <string name="browse">Browse</string>
+    <string name="favorites">Favorites</string>
+
+    <string name="sort_by">Sort by:</string>
+    <string name="popular">Popular</string>
+    <string name="newest">Newest</string>
+    <string name="most_liked">Most Liked</string>
+    <string name="trending">Trending</string>
+
+    <string name="new_releases">New Releases</string>
+    <string name="quality_4k">4K Quality</string>
+    <string name="shonen">Shonen</string>
+    <string name="minimalist">Minimalist</string>
+    <string name="cyberpunk">Cyberpunk</string>
+
+
+    <string name="no_favorites_yet">No favorites yet.</string>
+    <string name="set_as_wallpaper">Set as Wallpaper</string>
+    <string name="home_screen">Home Screen</string>
+    <string name="set_as_home">Set as your home screen wallpaper</string>
+    <string name="lock_screen">Lock Screen</string>
+    <string name="set_as_lock">Set as your lock screen wallpaper</string>
+    <string name="both_screens">Both Screens</string>
+    <string name="set_as_both">Set as both home and lock screen</string>
+    <string name="cancel">Cancel</string>
+    <string name="view_details">View Details</string>
+    <string name="views">Views</string>
+    <string name="favorites_count">Favorites</string>
+    <string name="related_wallpapers">Related Wallpapers</string>
+
 </resources>

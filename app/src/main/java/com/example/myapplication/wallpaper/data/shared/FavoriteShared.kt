@@ -41,11 +41,4 @@ class FavoriteShared(context: Context) {
         }
     }
 
-    fun isFavorite(imageId: String): Boolean {
-        return getFavorites().contains(imageId)
-    }
-
-    fun clearFavorites() {
-        prefs.edit().clear().apply()
-    }
 }

@@ -2,8 +2,8 @@ package com.example.myapplication.wallpaper.domain.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
-class BottomNavItem (
-    val label: String,
+data class BottomNavItem (
+    val titleResId: Int,
     val icon: ImageVector,
     val route: String,
     )

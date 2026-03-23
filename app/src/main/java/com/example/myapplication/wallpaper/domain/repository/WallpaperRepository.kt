@@ -1,6 +1,5 @@
 package com.example.myapplication.wallpaper.domain.repository
 
-import android.content.Context
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 
 
@@ -10,5 +9,4 @@ interface WallpaperRepository {
         suspend fun getMostFavorited(index: String, limit: Int, page: Int): List<Wallpaper>
         suspend fun getImageDetail(imageId: String): Wallpaper
         suspend fun getBanner(index: String): Wallpaper
-
 }
