@@ -1,4 +1,4 @@
-package com.example.myapplication.wallpaper.screens
+package com.example.myapplication.wallpaper.presentation.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,27 +32,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.example.myapplication.wallpaper.core.routes.AppRoute
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.PagingViewModel
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
-import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 
 @Composable
 fun FavoritesScreen(
     navController: NavController,
-    viewModel: WallpaperViewModel = viewModel(),
-
+    favoriteViewModel: FavoritesViewModel,
+    pagingViewModel: PagingViewModel
 ) {
-    val favoriteIds by viewModel.favoriteIds.collectAsState()
-    val allWallpapers = viewModel.wallpapersPagination.collectAsLazyPagingItems()
+    val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
+    val allWallpapers = pagingViewModel.wallpapersPagination.collectAsLazyPagingItems()
 
-    val favoritedList = FavoriteList(allWallpapers, favoriteIds)
+    LaunchedEffect(Unit) {
+        pagingViewModel.getWallpapers()
+    }
 
     Column(
         modifier = Modifier
@@ -71,7 +76,6 @@ fun FavoritesScreen(
 
         when (allWallpapers.loadState.refresh) {
             is LoadState.Loading -> {
-
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -82,7 +86,19 @@ fun FavoritesScreen(
                         strokeWidth = 3.dp
                     )
                 }
+            }
 
+            is LoadState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Error loading wallpapers",
+                        color = Color.Red,
+                        fontSize = 18.sp
+                    )
+                }
             }
 
             else -> {
@@ -98,13 +114,22 @@ fun FavoritesScreen(
                         )
                     }
                 } else {
-                    val favoritedList = FavoriteList(allWallpapers, favoriteIds)
+                    val favoritedList = remember(favoriteIds, allWallpapers.itemCount) {
+                        buildList {
+                            for (i in 0 until allWallpapers.itemCount) {
+                                val wallpaper = allWallpapers[i]
+                                if (wallpaper != null && favoriteIds.contains(wallpaper.id)) {
+                                    add(wallpaper)
+                                }
+                            }
+                        }
+                    }
 
                     FavoriteWallpaperGrid(
                         wallpapers = favoritedList,
                         favoriteIds = favoriteIds,
                         onFavoriteClick = { wallpaperId ->
-                            viewModel.toggleFavorite(wallpaperId)
+                            favoriteViewModel.toggleFavorite(wallpaperId)
                         },
                         navController = navController
                     )
@@ -113,24 +138,6 @@ fun FavoritesScreen(
         }
     }
 }
-
-@Composable
-fun FavoriteList(
-    allWallpapers: androidx.paging.compose.LazyPagingItems<Wallpaper>,
-    favoriteIds: List<String>
-): List<Wallpaper> {
-    return remember(favoriteIds, allWallpapers.itemCount) {
-        val list = mutableListOf<Wallpaper>()
-        for (i in 0 until allWallpapers.itemCount) {
-            val wallpaper = allWallpapers[i]
-            if (wallpaper != null && favoriteIds.contains(wallpaper.id)) {
-                list.add(wallpaper)
-            }
-        }
-        list
-    }
-}
-
 
 @Composable
 fun FavoriteWallpaperGrid(
@@ -171,23 +178,18 @@ fun FavoriteWallpaperCard(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable {
-                    navController.navigate("detail/${wallpaper.id}")
-                }
-
+                    navController.navigate(AppRoute.Detail.withId(wallpaper.id))
+                },
+            shape = RoundedCornerShape(8.dp)
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxSize(),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                AsyncImage(
-                    model = wallpaper.image_url,
-                    contentDescription = "Favorite Wallpaper",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+            AsyncImage(
+                model = wallpaper.image_url,
+                contentDescription = "Favorite Wallpaper",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
         }
+
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -198,7 +200,6 @@ fun FavoriteWallpaperCard(
                 icon = if (isFavorited) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
                 isActive = isFavorited
             )
-
         }
     }
 }

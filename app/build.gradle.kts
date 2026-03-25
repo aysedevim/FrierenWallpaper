@@ -79,6 +79,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
 
     val retrofitVersion = "2.11.0"
@@ -110,4 +111,12 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("com.google.dagger:hilt-android:2.48")
+    ksp("com.google.dagger:hilt-compiler:2.48")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    implementation ("com.google.dagger:hilt-android:2.38.1")
+    ksp("com.google.dagger:hilt-compiler:2.38.1")
 }

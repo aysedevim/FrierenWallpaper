@@ -1,4 +1,4 @@
-package com.example.myapplication.wallpaper.screens
+package com.example.myapplication.wallpaper.presentation.screens
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.background
@@ -47,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -56,23 +55,26 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.example.myapplication.wallpaper.core.routes.AppRoute
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.presentation.viewmodel.BrowseScreenViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
 import com.example.myapplication.wallpaper.ui.theme.gradientColors
-import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 
 
 @Composable
 fun BrowseScreen(
     navController: NavController,
-    viewModel: WallpaperViewModel,
+    browseViewModel: BrowseScreenViewModel,
+    favoriteViewModel: FavoritesViewModel
 ) {
-    val wallpapersPagination = viewModel.wallpapersPagination.collectAsLazyPagingItems()
-    val favoriteIds by viewModel.favoriteIds.collectAsState()
+    val wallpapersPagination = browseViewModel.wallpapersPagination.collectAsLazyPagingItems()
+    val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getWallpapers()
+        browseViewModel.getWallpapers()
     }
 
 
@@ -97,7 +99,7 @@ fun BrowseScreen(
             wallpapersPagination = wallpapersPagination,
             favoriteIds = favoriteIds,
             onFavoriteClick = { wallpaperId ->
-                viewModel.toggleFavorite(wallpaperId)
+                favoriteViewModel.toggleFavorite(wallpaperId)
             },
             navController = navController
         )
@@ -273,7 +275,7 @@ fun WallpaperCard(
         modifier = Modifier
             .size(width = 120.dp, height = 250.dp)
             .clickable {
-        navController.navigate("detail/${wallpaper.id}")
+                navController.navigate(AppRoute.Detail.withId(wallpaper.id))
     }
     ) {
         Card(

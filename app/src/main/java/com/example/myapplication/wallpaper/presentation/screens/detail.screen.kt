@@ -1,4 +1,4 @@
-package com.example.myapplication.wallpaper.screens
+package com.example.myapplication.wallpaper.presentation.screens
 import android.app.WallpaperManager
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -59,17 +59,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.wallpaper.data.repository.WallpaperSetterImpl
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.presentation.viewmodel.DetailScreenViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
 import com.example.myapplication.wallpaper.ui.theme.LightBlue
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
 import com.example.myapplication.wallpaper.ui.theme.gradientColors
-import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 import kotlinx.coroutines.launch
 
 
@@ -79,10 +79,11 @@ import kotlinx.coroutines.launch
 fun DetailScreen(
     navController: NavController,
     wallpaperId: String,
-    viewModel: WallpaperViewModel = viewModel()
+    detailViewModel: DetailScreenViewModel,
+    favoriteViewModel: FavoritesViewModel
 ) {
-    var wallpaper by remember { mutableStateOf<Wallpaper?>(null) }
-    val favoriteIds by viewModel.favoriteIds.collectAsState()
+    val wallpaper by detailViewModel.wallpaper.collectAsState()
+    val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val wallpaperSetter = remember { WallpaperSetterImpl() }
@@ -93,10 +94,9 @@ fun DetailScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(wallpaperId) {
-        viewModel.loadImageDetail(wallpaperId) { result ->
-            wallpaper = result
-        }
+        detailViewModel.loadImageDetail(wallpaperId)
     }
+
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -118,14 +118,14 @@ fun DetailScreen(
                 isFavorited = isFavorited,
                 onBackClick = { navController.navigateUp() },
                 onFavoriteClick = {
-                    viewModel.toggleFavorite(wallpaperId)
+                    favoriteViewModel.toggleFavorite(wallpaperId)
                 },
             )
 
             BottomCard(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 isFavorited = isFavorited,
-                onFavoriteClick = { viewModel.toggleFavorite(wallpaperId) },
+                onFavoriteClick = { favoriteViewModel.toggleFavorite(wallpaperId) },
                 onSetWallpaperClick = { showBottomSheet = true },
                 viewCount = wallpaper!!.view_count,
                 favoriteCount = wallpaper!!.favorite_count

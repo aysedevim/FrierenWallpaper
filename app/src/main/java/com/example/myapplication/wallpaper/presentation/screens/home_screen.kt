@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class)
 
-package com.example.myapplication.wallpaper.screens
+package com.example.myapplication.wallpaper.presentation.screens
 
 import com.example.myapplication.R
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,7 +18,10 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,34 +33,33 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import coil.compose.AsyncImage
+import com.example.myapplication.wallpaper.core.routes.AppRoute
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.presentation.viewmodel.HomeScreenViewModel
 import com.example.myapplication.wallpaper.ui.theme.LightBlue
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
 import com.example.myapplication.wallpaper.ui.theme.gradientColors
-import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
 
 
 @Composable
 fun HomeScreen(navController: NavController,
-               viewModel: WallpaperViewModel = viewModel(),
-
-) {
-    val bannerImage by viewModel.bannerImage
-    val mostViewedWallpapers = viewModel.mostViewedWallpapers.collectAsLazyPagingItems()
-    val mostFavoritedWallpapers = viewModel.mostFavoritedWallpapers.collectAsLazyPagingItems()
+               homeViewModel: HomeScreenViewModel,
+               ) {
+    val bannerImage by homeViewModel.bannerImage.collectAsState()
+    val mostViewedWallpapers = homeViewModel.mostViewedWallpapers.collectAsLazyPagingItems()
+    val mostFavoritedWallpapers = homeViewModel.mostFavoritedWallpapers.collectAsLazyPagingItems()
 
     LaunchedEffect(Unit) {
-        viewModel.loadBanner()
-        viewModel.getMostViewed()
-        viewModel.getMostFavorited()
+        homeViewModel.loadBanner()
+        homeViewModel.getMostViewed()
+        homeViewModel.getMostFavorited()
     }
 
 
@@ -92,7 +94,7 @@ fun HomeScreen(navController: NavController,
             TitleText(stringResource(id = R.string.most_viewed))
             ButtonText(
                 onClick = {
-                    navController.navigate("browse")
+                    navController.navigate(AppRoute.Browse)
                 }
             )
         }
@@ -109,7 +111,7 @@ fun HomeScreen(navController: NavController,
             TitleText(stringResource(id = R.string.most_favorited))
             ButtonText(
                 onClick = {
-                    navController.navigate("browse")
+                    navController.navigate(AppRoute.Browse)
                 }
             )
 
@@ -278,7 +280,7 @@ fun CarouselItem(
         modifier = Modifier
             .height(240.dp)
             .width(160.dp)
-            .clickable {  navController.navigate("detail/${wallpaper.id}") },
+            .clickable {   navController.navigate(AppRoute.Detail.withId(wallpaper.id)) },
         shape = RoundedCornerShape(16.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -24,7 +25,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,38 +36,19 @@ import com.example.myapplication.wallpaper.data.repository.FavoriteRepositoryImp
 import com.example.myapplication.wallpaper.data.repository.WallpaperRepositoryImpl
 import com.example.myapplication.wallpaper.data.shared.FavoriteShared
 import com.example.myapplication.wallpaper.domain.model.BottomNavItem
-import com.example.myapplication.wallpaper.domain.usecase.GetBannerUseCase
-import com.example.myapplication.wallpaper.domain.usecase.GetFavoritesUseCase
-import com.example.myapplication.wallpaper.domain.usecase.GetImageDetailUseCase
-import com.example.myapplication.wallpaper.domain.usecase.GetMostFavoritedUseCase
-import com.example.myapplication.wallpaper.domain.usecase.GetMostViewedUseCase
-import com.example.myapplication.wallpaper.domain.usecase.GetWallpapersPagingUseCase
-import com.example.myapplication.wallpaper.domain.usecase.ToggleFavoriteUseCase
+import com.example.myapplication.wallpaper.domain.usecase.*
+import com.example.myapplication.wallpaper.presentation.viewmodel.*
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
 import com.example.myapplication.wallpaper.ui.theme.Purple40
 import com.example.myapplication.wallpaper.ui.theme.ShoppingBookTheme
-import com.example.myapplication.wallpaper.viewmodel.WallpaperViewModel
+
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val api = WallpaperNetworkProvider.api
-        val wallpaperRepository = WallpaperRepositoryImpl(api)
-        val favoriteRepository = FavoriteRepositoryImpl(FavoriteShared(this))
-
-        val wallpaperViewModel = WallpaperViewModel(
-            getWallpapersPagingUseCase = GetWallpapersPagingUseCase(wallpaperRepository),
-            getMostViewedUseCase = GetMostViewedUseCase(wallpaperRepository),
-            getMostFavoritedUseCase = GetMostFavoritedUseCase(wallpaperRepository),
-            getBannerUseCase = GetBannerUseCase(wallpaperRepository),
-            getImageDetailUseCase = GetImageDetailUseCase(wallpaperRepository),
-            getFavoritesUseCase = GetFavoritesUseCase(favoriteRepository),
-            toggleFavoriteUseCase = ToggleFavoriteUseCase(favoriteRepository)
-        )
+        super.onCreate(savedInstanceState)
 
         setContent {
             ShoppingBookTheme {
@@ -75,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    FrierenApp(viewModel= wallpaperViewModel)
+                    FrierenApp()
                 }
             }
         }
@@ -137,12 +118,43 @@ fun NavBottom(
 }
 
 @Composable
-fun FrierenApp(
-    viewModel: WallpaperViewModel
-
-) {
+fun FrierenApp() {
     val navController = rememberNavController()
     val constants = Constants()
+
+
+    val api = WallpaperNetworkProvider.api
+    val wallpaperRepository = WallpaperRepositoryImpl(api)
+    val favoriteRepository = FavoriteRepositoryImpl(FavoriteShared(androidx.compose.ui.platform.LocalContext.current))
+
+
+    val getWallpapersPagingUseCase = GetWallpapersPagingUseCase(wallpaperRepository)
+    val getMostViewedUseCase = GetMostViewedUseCase(wallpaperRepository)
+    val getMostFavoritedUseCase = GetMostFavoritedUseCase(wallpaperRepository)
+    val getBannerUseCase = GetBannerUseCase(wallpaperRepository)
+    val getImageDetailUseCase = GetImageDetailUseCase(wallpaperRepository)
+    val getFavoritesUseCase = GetFavoritesUseCase(favoriteRepository)
+    val toggleFavoriteUseCase = ToggleFavoriteUseCase(favoriteRepository)
+
+
+    val favoriteViewModel = remember {
+        FavoritesViewModel(getFavoritesUseCase, toggleFavoriteUseCase)
+    }
+
+    val browseViewModel = remember {
+        BrowseScreenViewModel(getWallpapersPagingUseCase)
+    }
+
+    val pagingViewModel = remember {
+        PagingViewModel(getWallpapersPagingUseCase)
+    }
+    val homeViewModel = remember {
+        HomeScreenViewModel(getMostViewedUseCase, getMostFavoritedUseCase, getBannerUseCase)
+    }
+
+    val detailViewModel = remember {
+        DetailScreenViewModel(getImageDetailUseCase)
+    }
 
     Scaffold(
         bottomBar = {
@@ -155,7 +167,11 @@ fun FrierenApp(
     ) { innerPadding ->
         AppNavHost(
             navController = navController,
-            viewModel = viewModel,
+            favoriteViewModel = favoriteViewModel,
+            browseViewModel = browseViewModel,
+            homeViewModel = homeViewModel,
+            detailViewModel = detailViewModel,
+            pagingViewModel = pagingViewModel,
             modifier = Modifier.padding(innerPadding)
         )
     }

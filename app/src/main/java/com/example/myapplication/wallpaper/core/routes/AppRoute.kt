@@ -7,6 +7,9 @@ sealed class AppRoute(val route: String) {
 
     object Detail : AppRoute("detail/{wallpaperId}") {
         fun createRoute(wallpaperId: String) = "detail/$wallpaperId"
+
+
+        fun withId(wallpaperId: String): String = createRoute(wallpaperId)
     }
 
     companion object {
