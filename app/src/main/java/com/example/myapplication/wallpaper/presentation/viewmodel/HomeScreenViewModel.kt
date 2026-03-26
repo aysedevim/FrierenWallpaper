@@ -9,13 +9,16 @@ import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.usecase.GetBannerUseCase
 import com.example.myapplication.wallpaper.domain.usecase.GetMostFavoritedUseCase
 import com.example.myapplication.wallpaper.domain.usecase.GetMostViewedUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class HomeScreenViewModel(
+@HiltViewModel
+class HomeScreenViewModel @Inject constructor(
     private val getMostViewedUseCase: GetMostViewedUseCase,
     private val getMostFavoritedUseCase: GetMostFavoritedUseCase,
     private val getBannerUseCase: GetBannerUseCase

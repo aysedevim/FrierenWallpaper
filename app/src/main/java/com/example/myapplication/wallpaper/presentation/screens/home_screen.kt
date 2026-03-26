@@ -50,8 +50,8 @@ import com.example.myapplication.wallpaper.ui.theme.gradientColors
 
 @Composable
 fun HomeScreen(navController: NavController,
-               homeViewModel: HomeScreenViewModel,
-               ) {
+               homeViewModel: HomeScreenViewModel, )
+{
     val bannerImage by homeViewModel.bannerImage.collectAsState()
     val mostViewedWallpapers = homeViewModel.mostViewedWallpapers.collectAsLazyPagingItems()
     val mostFavoritedWallpapers = homeViewModel.mostFavoritedWallpapers.collectAsLazyPagingItems()

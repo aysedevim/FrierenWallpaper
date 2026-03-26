@@ -17,7 +17,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -31,19 +30,20 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.wallpaper.core.navigation.AppNavHost
 import com.example.myapplication.wallpaper.core.utils.Constants
-import com.example.myapplication.wallpaper.data.remote.WallpaperNetworkProvider
-import com.example.myapplication.wallpaper.data.repository.FavoriteRepositoryImpl
-import com.example.myapplication.wallpaper.data.repository.WallpaperRepositoryImpl
-import com.example.myapplication.wallpaper.data.shared.FavoriteShared
 import com.example.myapplication.wallpaper.domain.model.BottomNavItem
-import com.example.myapplication.wallpaper.domain.usecase.*
-import com.example.myapplication.wallpaper.presentation.viewmodel.*
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
 import com.example.myapplication.wallpaper.ui.theme.Purple40
 import com.example.myapplication.wallpaper.ui.theme.ShoppingBookTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.BrowseScreenViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.DetailScreenViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.HomeScreenViewModel
+import com.example.myapplication.wallpaper.presentation.viewmodel.PagingViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,39 +122,12 @@ fun FrierenApp() {
     val navController = rememberNavController()
     val constants = Constants()
 
+    val favoriteViewModel: FavoritesViewModel = hiltViewModel()
+    val browseViewModel: BrowseScreenViewModel = hiltViewModel()
+    val pagingViewModel: PagingViewModel = hiltViewModel()
+    val homeViewModel: HomeScreenViewModel = hiltViewModel()
+    val detailViewModel: DetailScreenViewModel = hiltViewModel()
 
-    val api = WallpaperNetworkProvider.api
-    val wallpaperRepository = WallpaperRepositoryImpl(api)
-    val favoriteRepository = FavoriteRepositoryImpl(FavoriteShared(androidx.compose.ui.platform.LocalContext.current))
-
-
-    val getWallpapersPagingUseCase = GetWallpapersPagingUseCase(wallpaperRepository)
-    val getMostViewedUseCase = GetMostViewedUseCase(wallpaperRepository)
-    val getMostFavoritedUseCase = GetMostFavoritedUseCase(wallpaperRepository)
-    val getBannerUseCase = GetBannerUseCase(wallpaperRepository)
-    val getImageDetailUseCase = GetImageDetailUseCase(wallpaperRepository)
-    val getFavoritesUseCase = GetFavoritesUseCase(favoriteRepository)
-    val toggleFavoriteUseCase = ToggleFavoriteUseCase(favoriteRepository)
-
-
-    val favoriteViewModel = remember {
-        FavoritesViewModel(getFavoritesUseCase, toggleFavoriteUseCase)
-    }
-
-    val browseViewModel = remember {
-        BrowseScreenViewModel(getWallpapersPagingUseCase)
-    }
-
-    val pagingViewModel = remember {
-        PagingViewModel(getWallpapersPagingUseCase)
-    }
-    val homeViewModel = remember {
-        HomeScreenViewModel(getMostViewedUseCase, getMostFavoritedUseCase, getBannerUseCase)
-    }
-
-    val detailViewModel = remember {
-        DetailScreenViewModel(getImageDetailUseCase)
-    }
 
     Scaffold(
         bottomBar = {

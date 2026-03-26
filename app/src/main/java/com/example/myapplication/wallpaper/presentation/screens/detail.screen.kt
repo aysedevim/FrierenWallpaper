@@ -62,7 +62,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.myapplication.R
-import com.example.myapplication.wallpaper.data.repository.WallpaperSetterImpl
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.presentation.viewmodel.DetailScreenViewModel
 import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
@@ -80,13 +79,12 @@ fun DetailScreen(
     navController: NavController,
     wallpaperId: String,
     detailViewModel: DetailScreenViewModel,
-    favoriteViewModel: FavoritesViewModel
+    favoriteViewModel: FavoritesViewModel,
 ) {
     val wallpaper by detailViewModel.wallpaper.collectAsState()
     val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val wallpaperSetter = remember { WallpaperSetterImpl() }
 
     val isFavorited = favoriteIds.contains(wallpaperId)
 
@@ -153,13 +151,7 @@ fun DetailScreen(
                             else -> WallpaperManager.FLAG_SYSTEM
                         }
 
-                        wallpaper?.let { currentWallpaper ->
-                            val result = wallpaperSetter.setWallpaper(
-                                context = context,
-                                wallpaper = currentWallpaper,
-                                destination = destination
-                            )
-
+                        detailViewModel.setWallpaper(context, destination) { result ->
                             result.onSuccess {
                                 Toast.makeText(context, "Wallpaper set successfully!", Toast.LENGTH_SHORT).show()
                             }.onFailure { error ->

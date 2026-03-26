@@ -7,12 +7,16 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.usecase.GetWallpapersPagingUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class BrowseScreenViewModel(
+
+@HiltViewModel
+class BrowseScreenViewModel @Inject constructor(
     private val getWallpapersPagingUseCase: GetWallpapersPagingUseCase
 ) : ViewModel() {
 

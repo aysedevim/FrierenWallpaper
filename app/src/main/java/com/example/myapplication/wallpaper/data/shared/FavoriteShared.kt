@@ -1,24 +1,25 @@
 package com.example.myapplication.wallpaper.data.shared
 
-import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class FavoriteShared(context: Context) {
-
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
+@Singleton
+class FavoriteShared @Inject constructor(
+    private val sharedPreferences: SharedPreferences
+) {
 
     private val gson = Gson()
-
+    private val favoritesKey = "favorites_list"
     fun saveFavorites(favorites: List<String>) {
         val json = gson.toJson(favorites)
-        prefs.edit().putString("favorites_list", json).apply()
+        sharedPreferences.edit().putString("favorites_list", json).apply()
     }
 
     fun getFavorites(): List<String> {
-        val json = prefs.getString("favorites_list", null)
+        val json = sharedPreferences.getString("favorites_list", null)
         return if (json != null) {
             val type = object : TypeToken<List<String>>() {}.type
             gson.fromJson(json, type)

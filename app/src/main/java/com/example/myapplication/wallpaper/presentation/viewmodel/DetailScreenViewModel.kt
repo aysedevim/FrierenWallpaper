@@ -4,14 +4,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import android.content.Context
 import com.example.myapplication.wallpaper.domain.usecase.GetImageDetailUseCase
+import com.example.myapplication.wallpaper.domain.usecase.SetWallpaperUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DetailScreenViewModel(
-    private val getImageDetailUseCase: GetImageDetailUseCase
+@HiltViewModel
+class DetailScreenViewModel @Inject constructor(
+    private val getImageDetailUseCase: GetImageDetailUseCase,
+    private val setWallpaperUseCase: SetWallpaperUseCase,
 ) : ViewModel() {
 
     val errorMessage = mutableStateOf<String?>(null)
@@ -25,6 +31,18 @@ class DetailScreenViewModel(
             } catch (e: Exception) {
                 errorMessage.value=("Detail load error: ${e.message}")
             }
+        }
+    }
+
+    fun setWallpaper(context: Context, destination: Int, onResult: (Result<Unit>) -> Unit) {
+        viewModelScope.launch {
+            val currentWallpaper = _wallpaper.value
+            if (currentWallpaper == null) {
+                onResult(Result.failure(Exception("Wallpaper not loaded")))
+                return@launch
+            }
+            val result = setWallpaperUseCase(context, currentWallpaper, destination)
+            onResult(result)
         }
     }
 }

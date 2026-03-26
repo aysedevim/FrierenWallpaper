@@ -2,9 +2,12 @@ package com.example.myapplication.wallpaper.data.repository
 
 import com.example.myapplication.wallpaper.data.shared.FavoriteShared
 import com.example.myapplication.wallpaper.domain.repository.FavoriteRepository
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 
-class FavoriteRepositoryImpl(
+@Singleton
+class FavoriteRepositoryImpl @Inject constructor(
     private val favoriteShared: FavoriteShared
 ) : FavoriteRepository {
 

@@ -1,21 +1,31 @@
-package com.example.myapplication.wallpaper.data.remote
+package com.example.myapplication.wallpaper.di
 
+import com.example.myapplication.wallpaper.data.remote.WallpaperApi
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
-object WallpaperNetworkProvider {
+@Module
+@InstallIn(SingletonComponent::class)
+object NetworkModule{
 
     private const val BASE_URL = "https://wallpaper-backend.applixus.com/"
 
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
 
-    private val client: OkHttpClient by lazy {
-        OkHttpClient.Builder()
+        return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor { chain ->
                 val original = chain.request()
@@ -30,12 +40,19 @@ object WallpaperNetworkProvider {
             .build()
     }
 
-    val api: WallpaperApi by lazy {
-        Retrofit.Builder()
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(WallpaperApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWallpaperApi(retrofit: Retrofit): WallpaperApi {
+        return retrofit.create(WallpaperApi::class.java)
     }
 }
