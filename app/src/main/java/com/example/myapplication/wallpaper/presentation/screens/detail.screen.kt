@@ -151,9 +151,13 @@ fun DetailScreen(
                             else -> WallpaperManager.FLAG_SYSTEM
                         }
 
-                        detailViewModel.setWallpaper(context, destination) { result ->
+                        detailViewModel.setWallpaper(destination) { result ->
                             result.onSuccess {
-                                Toast.makeText(context, "Wallpaper set successfully!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Wallpaper set successfully!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }.onFailure { error ->
                                 Toast.makeText(
                                     context,

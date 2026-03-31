@@ -3,14 +3,17 @@ package com.example.myapplication.wallpaper.di
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.myapplication.wallpaper.data.repository.FavoriteRepositoryImpl
+import com.example.myapplication.wallpaper.data.repository.SetWallpaperRepositoryImpl
 import com.example.myapplication.wallpaper.data.repository.WallpaperRepositoryImpl
 import com.example.myapplication.wallpaper.domain.repository.FavoriteRepository
+import com.example.myapplication.wallpaper.domain.repository.SetWallpaperRepository
 import com.example.myapplication.wallpaper.domain.repository.WallpaperRepository
 import com.example.myapplication.wallpaper.domain.usecase.*
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -29,54 +32,48 @@ object SharedPreferencesModule {
 }
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object UseCaseModule {
 
     @Provides
-    @Singleton
     fun provideGetWallpapersPagingUseCase(
         repository: WallpaperRepository
-    ): GetWallpapersPagingUseCase = GetWallpapersPagingUseCase(repository)
+    ) = GetWallpapersPagingUseCase(repository)
 
     @Provides
-    @Singleton
     fun provideGetMostViewedUseCase(
         repository: WallpaperRepository
-    ): GetMostViewedUseCase = GetMostViewedUseCase(repository)
+    ) = GetMostViewedUseCase(repository)
 
     @Provides
-    @Singleton
     fun provideGetMostFavoritedUseCase(
         repository: WallpaperRepository
-    ): GetMostFavoritedUseCase = GetMostFavoritedUseCase(repository)
+    ) = GetMostFavoritedUseCase(repository)
 
     @Provides
-    @Singleton
     fun provideGetBannerUseCase(
         repository: WallpaperRepository
-    ): GetBannerUseCase = GetBannerUseCase(repository)
+    ) = GetBannerUseCase(repository)
 
     @Provides
-    @Singleton
     fun provideGetImageDetailUseCase(
         repository: WallpaperRepository
-    ): GetImageDetailUseCase = GetImageDetailUseCase(repository)
+    ) = GetImageDetailUseCase(repository)
 
     @Provides
-    @Singleton
     fun provideGetFavoritesUseCase(
         repository: FavoriteRepository
-    ): GetFavoritesUseCase = GetFavoritesUseCase(repository)
+    ) = GetFavoritesUseCase(repository)
 
     @Provides
-    @Singleton
     fun provideToggleFavoriteUseCase(
         repository: FavoriteRepository
-    ): ToggleFavoriteUseCase = ToggleFavoriteUseCase(repository)
+    ) = ToggleFavoriteUseCase(repository)
 
     @Provides
-    @Singleton
-    fun provideSetWallpaperUseCase(): SetWallpaperUseCase = SetWallpaperUseCase()
+    fun provideSetWallpaperUseCase(
+        repository: SetWallpaperRepository
+    )= SetWallpaperUseCase(repository)
 }
 
 @Module
@@ -94,4 +91,12 @@ abstract class RepositoryModule {
     abstract fun bindFavoriteRepository(
         impl: FavoriteRepositoryImpl
     ): FavoriteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSetWallpaperRepository(
+        impl: SetWallpaperRepositoryImpl
+    ): SetWallpaperRepository
+
 }
+

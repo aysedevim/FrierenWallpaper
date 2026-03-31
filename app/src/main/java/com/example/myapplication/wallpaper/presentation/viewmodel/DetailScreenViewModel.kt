@@ -34,14 +34,32 @@ class DetailScreenViewModel @Inject constructor(
         }
     }
 
-    fun setWallpaper(context: Context, destination: Int, onResult: (Result<Unit>) -> Unit) {
+    fun setWallpaper(
+        destination: Int,
+        onResult: (Result<Unit>) -> Unit
+    ) {
+
         viewModelScope.launch {
+
             val currentWallpaper = _wallpaper.value
+
             if (currentWallpaper == null) {
-                onResult(Result.failure(Exception("Wallpaper not loaded")))
+
+                onResult(
+                    Result.failure(
+                        Exception("Wallpaper not loaded")
+                    )
+                )
+
                 return@launch
             }
-            val result = setWallpaperUseCase(context, currentWallpaper, destination)
+
+            val result =
+                setWallpaperUseCase(
+                    currentWallpaper,
+                    destination
+                )
+
             onResult(result)
         }
     }

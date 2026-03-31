@@ -276,11 +276,15 @@ fun CarouselItem(
     wallpaper: Wallpaper,
     navController: NavController
 ) {
+    val detailRoute = remember(wallpaper.id) {
+        AppRoute.Detail.withId(wallpaper.id)
+    }
+
     Card(
         modifier = Modifier
             .height(240.dp)
             .width(160.dp)
-            .clickable {   navController.navigate(AppRoute.Detail.withId(wallpaper.id)) },
+            .clickable {   navController.navigate(detailRoute) },
         shape = RoundedCornerShape(16.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
