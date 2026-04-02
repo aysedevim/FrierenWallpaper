@@ -4,6 +4,7 @@ import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.domain.repository.SetWallpaperRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +18,7 @@ class SetWallpaperRepositoryImpl @Inject constructor(
 
     override suspend fun setWallpaper(
         imageUrl: String,
-        destination: Int
+        destination: WallpaperDestination
     ): Result<Unit> = withContext(Dispatchers.IO) {
 
         try {
@@ -34,7 +35,7 @@ class SetWallpaperRepositoryImpl @Inject constructor(
                     bitmap,
                     null,
                     true,
-                    destination
+                    destination.flag
                 )
 
             Result.success(Unit)

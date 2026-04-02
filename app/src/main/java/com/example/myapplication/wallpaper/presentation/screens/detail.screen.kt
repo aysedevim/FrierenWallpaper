@@ -63,6 +63,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.presentation.viewmodel.DetailScreenViewModel
 import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
 import com.example.myapplication.wallpaper.ui.theme.LightBlue
@@ -139,19 +140,8 @@ fun DetailScreen(
             containerColor = Primary,
         ) {
             SetWallpaperBottomSheet(
-                onOptionSelected = { selectedOption ->
-                    coroutineScope.launch {
-                        sheetState.hide()
-                        showBottomSheet = false
-
-                        val destination = when (selectedOption) {
-                            "home" -> WallpaperManager.FLAG_SYSTEM
-                            "lock" -> WallpaperManager.FLAG_LOCK
-                            "both" -> WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK
-                            else -> WallpaperManager.FLAG_SYSTEM
-                        }
-
-                        detailViewModel.setWallpaper(destination) { result ->
+                onOptionSelected = { destination ->
+                    detailViewModel.setWallpaper(destination)  { result ->
                             result.onSuccess {
                                 Toast.makeText(
                                     context,
@@ -166,17 +156,19 @@ fun DetailScreen(
                                 ).show()
                             }
                         }
-                    }
+                    },
+                        onDismiss = { showBottomSheet = false } )
                 }
-            )
+
         }
-    }
 }
+
 
 @Composable
 fun SetWallpaperBottomSheet(
-    onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onOptionSelected: (WallpaperDestination) -> Unit,
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -195,7 +187,7 @@ fun SetWallpaperBottomSheet(
         Spacer(modifier = Modifier.height(24.dp))
 
         WallpaperOptionButton(
-            onClick = { onOptionSelected("home") },
+            onClick = { onOptionSelected(WallpaperDestination.HOME) },
             title =  stringResource(R.string.home_screen),
             description =  stringResource(R.string.set_as_home),
         )
@@ -203,7 +195,7 @@ fun SetWallpaperBottomSheet(
         Spacer(modifier = Modifier.height(12.dp))
 
         WallpaperOptionButton(
-            onClick = { onOptionSelected("lock") },
+            onClick = { onOptionSelected(WallpaperDestination.LOCK) },
             title =  stringResource(R.string.lock_screen),
             description =  stringResource(R.string.set_as_lock),
         )
@@ -211,7 +203,7 @@ fun SetWallpaperBottomSheet(
         Spacer(modifier = Modifier.height(12.dp))
 
         WallpaperOptionButton(
-            onClick = { onOptionSelected("both") },
+            onClick = { onOptionSelected(WallpaperDestination.BOTH) },
             title = stringResource(R.string.both_screens),
             description =  stringResource(R.string.set_as_both),
         )
@@ -219,7 +211,7 @@ fun SetWallpaperBottomSheet(
         Spacer(modifier = Modifier.height(24.dp))
 
         TextButton(
-            onClick = { onOptionSelected("") },
+            onClick = onDismiss,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(

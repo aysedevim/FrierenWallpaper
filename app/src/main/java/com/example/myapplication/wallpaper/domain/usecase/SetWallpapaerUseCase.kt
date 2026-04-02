@@ -1,6 +1,7 @@
 package com.example.myapplication.wallpaper.domain.usecase
 
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.domain.repository.SetWallpaperRepository
 import javax.inject.Inject
 
@@ -10,7 +11,7 @@ class SetWallpaperUseCase @Inject constructor(
 
     suspend operator fun invoke(
         wallpaper: Wallpaper,
-        destination: Int
+        destination: WallpaperDestination
     ): Result<Unit> {
 
         return wallpaperSetter.setWallpaper(

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import android.content.Context
+import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.domain.usecase.GetImageDetailUseCase
 import com.example.myapplication.wallpaper.domain.usecase.SetWallpaperUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,7 +36,7 @@ class DetailScreenViewModel @Inject constructor(
     }
 
     fun setWallpaper(
-        destination: Int,
+        destination: WallpaperDestination,
         onResult: (Result<Unit>) -> Unit
     ) {
 
