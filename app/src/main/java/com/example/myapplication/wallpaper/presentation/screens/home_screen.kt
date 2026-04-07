@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,10 +40,13 @@ import androidx.paging.compose.itemContentType
 import coil.compose.AsyncImage
 import com.example.myapplication.wallpaper.core.routes.AppRoute
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.data.mapper.toAppError
+import com.example.myapplication.wallpaper.presentation.components.ErrorContent
 import com.example.myapplication.wallpaper.presentation.viewmodel.HomeScreenViewModel
 import com.example.myapplication.wallpaper.ui.theme.LightBlue
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.wallpaper.ui.theme.gradientColors
 
 
@@ -52,7 +54,7 @@ import com.example.myapplication.wallpaper.ui.theme.gradientColors
 fun HomeScreen(navController: NavController,
                homeViewModel: HomeScreenViewModel, )
 {
-    val bannerImage by homeViewModel.bannerImage.collectAsState()
+    val homeState by homeViewModel.state.collectAsState()
     val mostViewedWallpapers = homeViewModel.mostViewedWallpapers.collectAsLazyPagingItems()
     val mostFavoritedWallpapers = homeViewModel.mostFavoritedWallpapers.collectAsLazyPagingItems()
 
@@ -78,12 +80,40 @@ fun HomeScreen(navController: NavController,
             GradientText(stringResource(id = R.string.anime_walls))
         }
 
-        BannerCard(
-            wallpaper = bannerImage,
-            onBannerClick = {
-
+        when {
+            homeState.isBannerLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(2f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = Purple,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
             }
-        )
+            homeState.bannerError != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(2f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ErrorContent(
+                        error = homeState.bannerError!!,
+                        onRetry = { homeViewModel.loadBanner() }
+                    )
+                }
+            }
+            else -> {
+                BannerCard(
+                    wallpaper = homeState.bannerImage,
+                    onBannerClick = { }
+                )
+            }
+        }
 
 
         Row(
@@ -246,6 +276,21 @@ fun WallpaperCarousel(
             }
         }
 
+        is LoadState.Error -> {
+            val error = (pagingItems.loadState.refresh as LoadState.Error).error
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                ErrorContent(
+                    error = error.toAppError(),
+                    onRetry = { pagingItems.retry() }
+                )
+            }
+        }
+
         else -> {
             LazyRow(
                 modifier = Modifier
@@ -346,4 +391,32 @@ fun CarouselItem(
     }
 }
 
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun ABoxPreview() {
+    ABox()
+}
 
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun GradientTextPreview() {
+    GradientText("Anime Walls")
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun BannerCardPreview() {
+    BannerCard(wallpaper = null, onBannerClick = {})
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun TitleTextPreview() {
+    TitleText("Most Viewed")
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun ButtonTextPreview() {
+    ButtonText(onClick = {})
+}

@@ -34,15 +34,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.wallpaper.core.routes.AppRoute
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.data.mapper.toAppError
+import com.example.myapplication.wallpaper.presentation.components.ErrorContent
 import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
 import com.example.myapplication.wallpaper.presentation.viewmodel.PagingViewModel
 import com.example.myapplication.wallpaper.ui.theme.Primary
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.wallpaper.ui.theme.Purple
 
 @Composable
@@ -89,14 +91,14 @@ fun FavoritesScreen(
             }
 
             is LoadState.Error -> {
+                val error = (allWallpapers.loadState.refresh as LoadState.Error).error
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Error loading wallpapers",
-                        color = Color.Red,
-                        fontSize = 18.sp
+                    ErrorContent(
+                        error = error.toAppError(),
+                        onRetry = { allWallpapers.retry() }
                     )
                 }
             }
@@ -202,4 +204,18 @@ fun FavoriteWallpaperCard(
             )
         }
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun FavoriteWallpaperCardPreview() {
+    FavoriteWallpaperCard(
+        wallpaper = Wallpaper(
+            id = "1", source_url = "", image_url = "",
+            crawledAt = "", index = "0", view_count = 100, favorite_count = 50
+        ),
+        isFavorited = true,
+        onFavoriteClick = {},
+        navController = androidx.navigation.compose.rememberNavController()
+    )
 }

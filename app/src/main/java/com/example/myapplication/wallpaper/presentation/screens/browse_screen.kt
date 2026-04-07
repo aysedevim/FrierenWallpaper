@@ -57,10 +57,13 @@ import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.wallpaper.core.routes.AppRoute
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.data.mapper.toAppError
+import com.example.myapplication.wallpaper.presentation.components.ErrorContent
 import com.example.myapplication.wallpaper.presentation.viewmodel.BrowseScreenViewModel
 import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.wallpaper.ui.theme.gradientColors
 
 
@@ -223,7 +226,10 @@ fun PagingWallpaperGrid(
                             .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Error: ${refreshState.error.message}", color = Color.Red)
+                        ErrorContent(
+                            error = refreshState.error.toAppError(),
+                            onRetry = { wallpapersPagination.retry() }
+                        )
                     }
                 }
             }
@@ -255,7 +261,10 @@ fun PagingWallpaperGrid(
                             .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Error while loading", color = Color.Red)
+                        ErrorContent(
+                            error = appendState.error.toAppError(),
+                            onRetry = { wallpapersPagination.retry() }
+                        )
                     }
                 }
             }
@@ -368,4 +377,16 @@ fun CategoryChips() {
             }
         }
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun CategoryChipsPreview() {
+    CategoryChips()
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun DropDownPreview() {
+    DropDown()
 }

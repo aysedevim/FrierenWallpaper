@@ -64,6 +64,7 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.8.8")
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.room.ktx)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
 

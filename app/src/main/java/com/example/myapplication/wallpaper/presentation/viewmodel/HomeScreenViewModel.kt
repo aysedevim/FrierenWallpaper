@@ -1,10 +1,12 @@
 package com.example.myapplication.wallpaper.presentation.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.myapplication.wallpaper.core.constants.AppIndex
+import com.example.myapplication.wallpaper.data.mapper.toAppError
+import com.example.myapplication.wallpaper.domain.model.AppError
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.usecase.GetBannerUseCase
 import com.example.myapplication.wallpaper.domain.usecase.GetMostFavoritedUseCase
@@ -17,6 +19,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
+data class HomeScreenState(
+    val bannerImage: Wallpaper? = null,
+    val isBannerLoading: Boolean = false,
+    val bannerError: AppError? = null
+)
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val getMostViewedUseCase: GetMostViewedUseCase,
@@ -24,51 +31,50 @@ class HomeScreenViewModel @Inject constructor(
     private val getBannerUseCase: GetBannerUseCase
 ) : ViewModel() {
 
-    val errorMessage = mutableStateOf<String?>(null)
-    private val _mostViewedWallpapers = MutableStateFlow<PagingData<Wallpaper>>(PagingData.empty())
-    val mostViewedWallpapers: StateFlow<PagingData<Wallpaper>> = _mostViewedWallpapers.asStateFlow()
+    private val _state = MutableStateFlow(HomeScreenState())
+    val state: StateFlow<HomeScreenState> = _state.asStateFlow()
+    private val _mostViewedWallpapers =
+        MutableStateFlow<PagingData<Wallpaper>>(PagingData.empty())
+    val mostViewedWallpapers = _mostViewedWallpapers.asStateFlow()
 
-    private val _mostFavoritedWallpapers = MutableStateFlow<PagingData<Wallpaper>>(PagingData.empty())
-    val mostFavoritedWallpapers: StateFlow<PagingData<Wallpaper>> = _mostFavoritedWallpapers.asStateFlow()
+    private val _mostFavoritedWallpapers =
+        MutableStateFlow<PagingData<Wallpaper>>(PagingData.empty())
+    val mostFavoritedWallpapers = _mostFavoritedWallpapers.asStateFlow()
 
-    private val _bannerImage = MutableStateFlow<Wallpaper?>(null)
-    val bannerImage: StateFlow<Wallpaper?> = _bannerImage.asStateFlow()
-
-    fun loadBanner(index: String = "frieren") {
+    fun loadBanner(index: String = AppIndex.FRIEREN) {
         viewModelScope.launch {
+            _state.value = _state.value.copy(isBannerLoading = true, bannerError = null)
             try {
-                _bannerImage.value = getBannerUseCase(index)
+                val banner = getBannerUseCase(index)
+                _state.value = _state.value.copy(bannerImage = banner, isBannerLoading =
+                    false)
             } catch (e: Exception) {
-                errorMessage.value=("Banner load error: ${e.message}")
+                _state.value = _state.value.copy(
+                    isBannerLoading = false,
+                    bannerError = e.toAppError()
+                )
             }
         }
     }
 
-    fun getMostViewed(index: String = "frieren") {
+
+    fun getMostViewed(index: String = AppIndex.FRIEREN) {
         viewModelScope.launch {
-            try {
-                getMostViewedUseCase(
-                    GetMostViewedUseCase.Input(index = index, itemPerPage = 10)
-                )
-                    .cachedIn(viewModelScope)
-                    .collect { _mostViewedWallpapers.value = it }
-            } catch (e: Exception) {
-                errorMessage.value=("Most viewed error: ${e.message}")
-            }
+            getMostViewedUseCase(
+                GetMostViewedUseCase.Input(index = index, itemPerPage = 10)
+            )
+                .cachedIn(viewModelScope)
+                .collect { _mostViewedWallpapers.value = it }
         }
     }
 
-    fun getMostFavorited(index: String = "frieren") {
+    fun getMostFavorited(index: String = AppIndex.FRIEREN) {
         viewModelScope.launch {
-            try {
-                getMostFavoritedUseCase(
-                    GetMostFavoritedUseCase.Input(index = index, itemPerPage = 10)
-                )
-                    .cachedIn(viewModelScope)
-                    .collect { _mostFavoritedWallpapers.value = it }
-            } catch (e: Exception) {
-                errorMessage.value=("Most favorited error: ${e.message}")
-            }
+            getMostFavoritedUseCase(
+                GetMostFavoritedUseCase.Input(index = index, itemPerPage = 10)
+            )
+                .cachedIn(viewModelScope)
+                .collect { _mostFavoritedWallpapers.value = it }
         }
     }
 }

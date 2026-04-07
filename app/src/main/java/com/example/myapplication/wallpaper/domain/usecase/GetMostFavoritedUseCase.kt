@@ -3,6 +3,7 @@ package com.example.myapplication.wallpaper.domain.usecase
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.example.myapplication.wallpaper.core.constants.AppIndex
 import com.example.myapplication.wallpaper.data.paging.MostFavoritedPagingSource
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.repository.WallpaperRepository
@@ -14,7 +15,7 @@ class GetMostFavoritedUseCase(
     private val repository: WallpaperRepository
 ) {
     data class Input(
-        val index: String = "frieren",
+        val index: String = AppIndex.FRIEREN,
         val itemPerPage: Int = 10
     )
 

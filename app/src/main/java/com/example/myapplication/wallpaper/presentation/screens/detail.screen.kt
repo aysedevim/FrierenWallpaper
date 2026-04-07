@@ -1,5 +1,4 @@
 package com.example.myapplication.wallpaper.presentation.screens
-import android.app.WallpaperManager
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +62,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
+import com.example.myapplication.wallpaper.presentation.components.ErrorContent
 import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.presentation.viewmodel.DetailScreenViewModel
 import com.example.myapplication.wallpaper.presentation.viewmodel.FavoritesViewModel
@@ -70,6 +70,7 @@ import com.example.myapplication.wallpaper.ui.theme.LightBlue
 import com.example.myapplication.wallpaper.ui.theme.Primary
 import com.example.myapplication.wallpaper.ui.theme.Purple
 import com.example.myapplication.wallpaper.ui.theme.gradientColors
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 
 
@@ -82,10 +83,9 @@ fun DetailScreen(
     detailViewModel: DetailScreenViewModel,
     favoriteViewModel: FavoritesViewModel,
 ) {
-    val wallpaper by detailViewModel.wallpaper.collectAsState()
+    val state by detailViewModel.state.collectAsState()
     val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     val isFavorited = favoriteIds.contains(wallpaperId)
 
@@ -100,35 +100,51 @@ fun DetailScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (wallpaper == null) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = Purple,
-                    modifier = Modifier.size(48.dp)
+        when {
+            state.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = Purple,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+            }
+            state.error != null -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ErrorContent(
+                        error = state.error!!,
+                        onRetry = { detailViewModel.loadImageDetail(wallpaperId) }
+                    )
+                }
+            }
+            state.wallpaper != null -> {
+                val wallpaper = state.wallpaper!!
+
+                DetailImage(wallpaper = wallpaper)
+
+                DetailTopNavBar(
+                    isFavorited = isFavorited,
+                    onBackClick = { navController.navigateUp() },
+                    onFavoriteClick = {
+                        favoriteViewModel.toggleFavorite(wallpaperId)
+                    },
+                )
+
+                BottomCard(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    isFavorited = isFavorited,
+                    onFavoriteClick = { favoriteViewModel.toggleFavorite(wallpaperId) },
+                    onSetWallpaperClick = { showBottomSheet = true },
+                    viewCount = wallpaper.view_count,
+                    favoriteCount = wallpaper.favorite_count
                 )
             }
-        } else {
-            DetailImage(wallpaper = wallpaper!!)
-
-            DetailTopNavBar(
-                isFavorited = isFavorited,
-                onBackClick = { navController.navigateUp() },
-                onFavoriteClick = {
-                    favoriteViewModel.toggleFavorite(wallpaperId)
-                },
-            )
-
-            BottomCard(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                isFavorited = isFavorited,
-                onFavoriteClick = { favoriteViewModel.toggleFavorite(wallpaperId) },
-                onSetWallpaperClick = { showBottomSheet = true },
-                viewCount = wallpaper!!.view_count,
-                favoriteCount = wallpaper!!.favorite_count
-            )
         }
     }
 
@@ -585,3 +601,37 @@ fun Dividers(
         )
     }
 }
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun BottomCardPreview() {
+    BottomCard(
+        isFavorited = true,
+        onFavoriteClick = {},
+        onSetWallpaperClick = {},
+        viewCount = 1250,
+        favoriteCount = 340
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun SetWallpaperBottomSheetPreview() {
+    SetWallpaperBottomSheet(
+        onOptionSelected = {},
+        onDismiss = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GradientButtonPreview() {
+    GradientButton(onClick = {})
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF1C1B1F)
+@Composable
+fun DividersPreview() {
+    Dividers(viewCount = 500, favoriteCount = 120)
+}
+

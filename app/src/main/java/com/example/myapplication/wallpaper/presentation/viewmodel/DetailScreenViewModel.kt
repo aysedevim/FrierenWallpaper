@@ -1,10 +1,10 @@
 package com.example.myapplication.wallpaper.presentation.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
-import android.content.Context
+import com.example.myapplication.wallpaper.data.mapper.toAppError
+import com.example.myapplication.wallpaper.domain.model.AppError
 import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.domain.usecase.GetImageDetailUseCase
 import com.example.myapplication.wallpaper.domain.usecase.SetWallpaperUseCase
@@ -15,22 +15,35 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class DetailScreenState(
+    val wallpaper: Wallpaper? = null,
+    val isLoading: Boolean = false,
+    val error: AppError? = null
+)
 @HiltViewModel
 class DetailScreenViewModel @Inject constructor(
     private val getImageDetailUseCase: GetImageDetailUseCase,
     private val setWallpaperUseCase: SetWallpaperUseCase,
 ) : ViewModel() {
 
-    val errorMessage = mutableStateOf<String?>(null)
-    private val _wallpaper = MutableStateFlow<Wallpaper?>(null)
-    val wallpaper: StateFlow<Wallpaper?> = _wallpaper.asStateFlow()
+    private val _state = MutableStateFlow(DetailScreenState())
+    val state: StateFlow<DetailScreenState> = _state.asStateFlow()
 
     fun loadImageDetail(imageId: String) {
         viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+
             try {
-                _wallpaper.value = getImageDetailUseCase(imageId)
+                val wallpaper = getImageDetailUseCase(imageId)
+                _state.value = _state.value.copy(
+                    wallpaper = wallpaper,
+                    isLoading = false
+                )
             } catch (e: Exception) {
-                errorMessage.value=("Detail load error: ${e.message}")
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = e.toAppError()
+                )
             }
         }
     }
@@ -42,7 +55,7 @@ class DetailScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            val currentWallpaper = _wallpaper.value
+            val currentWallpaper = _state.value.wallpaper
 
             if (currentWallpaper == null) {
 
