@@ -6,7 +6,6 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 
 
-@Singleton
 class FavoriteRepositoryImpl @Inject constructor(
     private val favoriteShared: FavoriteShared
 ) : FavoriteRepository {

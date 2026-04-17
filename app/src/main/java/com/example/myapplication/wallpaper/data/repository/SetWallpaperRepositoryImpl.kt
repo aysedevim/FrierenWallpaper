@@ -4,6 +4,8 @@ import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.example.myapplication.wallpaper.core.utils.safeCall
+import com.example.myapplication.wallpaper.domain.model.Resource
 import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.domain.repository.SetWallpaperRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,15 +21,10 @@ class SetWallpaperRepositoryImpl @Inject constructor(
     override suspend fun setWallpaper(
         imageUrl: String,
         destination: WallpaperDestination
-    ): Result<Unit> = withContext(Dispatchers.IO) {
-
-        try {
-
-            val bitmap =
-                loadBitmapFromUrl(imageUrl)
-                    ?: return@withContext Result.failure(
-                        Exception("Bitmap yuklenemedi")
-                    )
+    ): Resource<Unit> = safeCall {
+        withContext(Dispatchers.IO) {
+            val bitmap = loadBitmapFromUrl(imageUrl)
+                ?: throw IllegalStateException("Bitmap yüklenemedi")
 
             WallpaperManager
                 .getInstance(context)
@@ -37,12 +34,6 @@ class SetWallpaperRepositoryImpl @Inject constructor(
                     true,
                     destination.flag
                 )
-
-            Result.success(Unit)
-
-        } catch (e: Exception) {
-
-            Result.failure(e)
         }
     }
 

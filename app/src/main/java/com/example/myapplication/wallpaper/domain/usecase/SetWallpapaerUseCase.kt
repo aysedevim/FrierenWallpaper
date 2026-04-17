@@ -1,5 +1,6 @@
 package com.example.myapplication.wallpaper.domain.usecase
 
+import com.example.myapplication.wallpaper.domain.model.Resource
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.model.WallpaperDestination
 import com.example.myapplication.wallpaper.domain.repository.SetWallpaperRepository
@@ -12,7 +13,7 @@ class SetWallpaperUseCase @Inject constructor(
     suspend operator fun invoke(
         wallpaper: Wallpaper,
         destination: WallpaperDestination
-    ): Result<Unit> {
+    ): Resource<Unit> {
 
         return wallpaperSetter.setWallpaper(
             wallpaper.image_url,

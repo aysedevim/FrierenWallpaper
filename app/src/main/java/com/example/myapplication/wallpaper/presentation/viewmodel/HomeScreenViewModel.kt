@@ -7,6 +7,7 @@ import androidx.paging.cachedIn
 import com.example.myapplication.wallpaper.core.constants.AppIndex
 import com.example.myapplication.wallpaper.data.mapper.toAppError
 import com.example.myapplication.wallpaper.domain.model.AppError
+import com.example.myapplication.wallpaper.domain.model.Resource
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.usecase.GetBannerUseCase
 import com.example.myapplication.wallpaper.domain.usecase.GetMostFavoritedUseCase
@@ -44,15 +45,17 @@ class HomeScreenViewModel @Inject constructor(
     fun loadBanner(index: String = AppIndex.FRIEREN) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isBannerLoading = true, bannerError = null)
-            try {
-                val banner = getBannerUseCase(index)
-                _state.value = _state.value.copy(bannerImage = banner, isBannerLoading =
-                    false)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isBannerLoading = false,
-                    bannerError = e.toAppError()
+
+            when (val result = getBannerUseCase(index)) {
+                is Resource.Success -> _state.value = _state.value.copy(
+                    bannerImage = result.data,
+                    isBannerLoading = false
                 )
+                is Resource.Error -> _state.value = _state.value.copy(
+                    bannerError = result.error,
+                    isBannerLoading = false
+                )
+                Resource.Loading -> Unit
             }
         }
     }

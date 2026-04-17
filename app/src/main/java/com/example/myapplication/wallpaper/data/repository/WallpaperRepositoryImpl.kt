@@ -1,13 +1,14 @@
 package com.example.myapplication.wallpaper.data.repository
 
+import com.example.myapplication.wallpaper.core.utils.safeCall
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
 import com.example.myapplication.wallpaper.domain.repository.WallpaperRepository
 import com.example.myapplication.wallpaper.data.remote.WallpaperApi
+import com.example.myapplication.wallpaper.domain.model.Resource
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
-@Singleton
 class WallpaperRepositoryImpl @Inject constructor(
     private val api: WallpaperApi,
 ) : WallpaperRepository {
@@ -16,12 +17,12 @@ class WallpaperRepositoryImpl @Inject constructor(
         index: String,
         limit: Int,
         page: Int
-    ): List<Wallpaper> {
-        return api.getImages(
-                index = index,
-                limit = limit,
-                page = page
-            )
+    ): Resource<List<Wallpaper>> = safeCall {
+        api.getImages(
+            index = index,
+            limit = limit,
+            page = page
+        )
     }
 
     override suspend fun getMostViewed(
@@ -30,11 +31,10 @@ class WallpaperRepositoryImpl @Inject constructor(
         page: Int
     ): List<Wallpaper> {
         return api.getMostViewed(
-                index = index,
-                limit = limit,
-                page = page
-            )
-
+            index = index,
+            limit = limit,
+            page = page
+        )
     }
 
     override suspend fun getMostFavorited(
@@ -43,22 +43,18 @@ class WallpaperRepositoryImpl @Inject constructor(
         page: Int
     ): List<Wallpaper> {
         return api.getMostFavorited(
-                index = index,
-                limit = limit,
-                page = page
-            )
+            index = index,
+            limit = limit,
+            page = page
+        )
 
     }
 
-    override suspend fun getImageDetail(imageId: String): Wallpaper {
-        return api.getImageDetail(imageId = imageId)
+    override suspend fun getImageDetail(imageId: String): Resource<Wallpaper> =
+        safeCall { api.getImageDetail(imageId = imageId) }
 
-    }
 
-    override suspend fun getBanner(index: String): Wallpaper {
-        return api.getBanner(index = index)
-
-    }
-
+    override suspend fun getBanner(index: String): Resource<Wallpaper> =
+        safeCall { api.getBanner(index = index) }
 
 }
