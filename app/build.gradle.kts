@@ -41,6 +41,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {
@@ -65,6 +66,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.8")
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.room.ktx)
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-paging:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
     debugImplementation(libs.androidx.compose.ui.tooling)
 
 

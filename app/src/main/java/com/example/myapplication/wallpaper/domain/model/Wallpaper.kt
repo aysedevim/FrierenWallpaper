@@ -5,7 +5,7 @@ data class Wallpaper(
     val id: String,
     val source_url: String,
     val image_url: String,
-    val crawledAt: String,
+    val crawledAt: String?,
     val width: Int? = null,
     val height: Int? = null,
     val index: String,

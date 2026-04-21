@@ -1,9 +1,11 @@
 package com.example.myapplication.wallpaper.di
 
+import com.example.myapplication.BuildConfig
 import com.example.myapplication.wallpaper.data.remote.WallpaperApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import com.example.myapplication.wallpaper.core.constants.AppIndex
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -14,15 +16,20 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModule{
+object NetworkModule {
 
-    private const val BASE_URL = "https://wallpaper-backend.applixus.com/"
+
 
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            val level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+            setLevel(level)
         }
 
         return OkHttpClient.Builder()
@@ -44,7 +51,7 @@ object NetworkModule{
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(AppIndex.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

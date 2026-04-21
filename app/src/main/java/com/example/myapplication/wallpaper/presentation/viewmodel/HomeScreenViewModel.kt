@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.myapplication.wallpaper.core.constants.AppIndex
-import com.example.myapplication.wallpaper.data.mapper.toAppError
 import com.example.myapplication.wallpaper.domain.model.AppError
 import com.example.myapplication.wallpaper.domain.model.Resource
 import com.example.myapplication.wallpaper.domain.model.Wallpaper
